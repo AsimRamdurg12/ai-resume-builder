@@ -1,7 +1,9 @@
+import { dbConnect } from "@/lib/dbConnect";
 import UserModel from "@/models/UserModel";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
+  await dbConnect();
   try {
     const { name, email, password } = await request.json();
 
@@ -19,7 +21,7 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await UserModel.create({
+    await UserModel.create({
       name: name,
       email: email,
       password: hashedPassword,

@@ -1,5 +1,8 @@
+"use client";
+
 import { ModeToggle } from "@/components/shared/ModeToggle";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function Home() {
@@ -9,6 +12,7 @@ export default function Home() {
         <ModeToggle />
         <Link href="/sign-in">Sign IN</Link>
         <Link href="/sign-up">Sign UP</Link>
+        <Button onClick={() => signOut()}>Sign out</Button>
       </main>
     </div>
   );

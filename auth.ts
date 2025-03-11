@@ -4,7 +4,7 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { dbConnect } from "./lib/dbConnect";
 import UserModel from "./models/UserModel";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -60,7 +60,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return user;
-        } catch (error) {}
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: `Error in Sign In:${error}`,
+          });
+        }
       },
     }),
   ],
