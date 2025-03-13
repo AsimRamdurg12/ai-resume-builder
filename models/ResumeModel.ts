@@ -1,7 +1,7 @@
-import { model, Model, models, Schema } from "mongoose";
+import mongoose, { model, Model, models, Schema } from "mongoose";
 
 export interface IResume extends Document {
-  userId: Schema.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   fileUrl: string;
   filename: string;
   parsedText: string;

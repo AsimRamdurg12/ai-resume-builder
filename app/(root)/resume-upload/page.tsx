@@ -2,41 +2,52 @@
 
 import { uploadResume } from "@/app/actions/resume.actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { UploadCloud } from "lucide-react";
-import { useRef } from "react";
+import { useSession } from "next-auth/react";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 const ResumeUploadPage = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState([]);
 
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
+  const { data: session } = useSession();
+
+  console.log(session?.user);
+
+  const onDrop = useCallback((acceptFiles: any) => {
+    console.log(acceptFiles);
+    setFile(acceptFiles);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [],
+      "	application/msword": [],
+    },
+    maxFiles: 1,
+    maxSize: 5 * 1024 * 1024,
+  });
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-svh mx-auto max-w-6xl">
-      <div
-        className="flex flex-col justify-center text-gray-900 items-center px-4 py-2 border w-xl mx-auto rounded-md"
-        onClick={handleClick}
-      >
-        <UploadCloud className="size-2/3 opacity-50" />
-        Upload your resume .pdf/.docx
-      </div>
-
-      <form
-        action={uploadResume}
-        encType="multipart/form-data"
-        className="relative mx-4"
-      >
-        <Input
-          type="file"
-          accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
-          name="file"
-          className="opacity-0"
-          ref={inputRef}
-        />
-        <p>{inputRef.current?.value}</p>
-        <Button type="submit" className="border w-full">
+    <div className="flex mt-20 flex-col items-center min-h-svh mx-auto max-w-6xl">
+      <h1 className="font-bold text-3xl sm:text-4xl mb-10">Upload Resume</h1>
+      <form action={uploadResume} className="flex flex-col gap-4 w-full">
+        <div
+          {...getRootProps()}
+          className="mx-4 p-20 flex justify-center border-dashed border dark:border-white border-gray-700"
+        >
+          <input {...getInputProps({ name: "file" })} />
+          {file[0] ? (
+            <p>{file[0]?.name}</p>
+          ) : isDragActive ? (
+            <p>Drop the resume here</p>
+          ) : (
+            <p>Drag and drop your resume here, or click to upload resume</p>
+          )}
+        </div>
+        <Button type="submit" disabled={file.length === 0} className="mx-4">
           Submit
         </Button>
       </form>
