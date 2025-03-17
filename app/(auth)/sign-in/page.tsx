@@ -33,7 +33,8 @@ const SignInpage = () => {
       setIsSubmitting(true);
       const response = await signIn("credentials", {
         redirect: false,
-        entries: { email: data.email, password: data.password },
+        email: data.email,
+        password: data.password,
       });
 
       if (response?.error === "CredentialsSignin") {

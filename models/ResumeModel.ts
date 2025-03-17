@@ -1,7 +1,7 @@
-import mongoose, { model, Model, models, Schema } from "mongoose";
+import { model, Model, models, Schema } from "mongoose";
 
 export interface IResume extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   fileUrl: string;
   filename: string;
   parsedText: string;
@@ -12,7 +12,7 @@ export interface IResume extends Document {
 
 export const ResumeSchema: Schema<IResume> = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User" },
+    userId: { type: String },
     fileUrl: { type: String },
     filename: { type: String },
     parsedText: { type: String },

@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ["pdf-parse"],
   experimental: {
     turbo: {
       resolveExtensions: [

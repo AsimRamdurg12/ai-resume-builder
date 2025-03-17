@@ -1,29 +1,31 @@
-import { getToken } from "next-auth/jwt";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { auth } from "./auth";
 
 export const config = {
-  matcher: ["/sign-up", "/sign-in", "/"],
+  matcher: ["/", "/sign-in", "/sign-up"],
 };
 
 export const middleware = async (request: NextRequest) => {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
-  const url = request.nextUrl;
+  const session = await auth();
 
   if (
-    token &&
-    (url.pathname.startsWith("/sign-in") || url.pathname.startsWith("/sign-up"))
+    !session &&
+    !(
+      request.nextUrl.pathname === "/sign-in" ||
+      request.nextUrl.pathname === "/sign-up" ||
+      request.nextUrl.pathname === "/"
+    )
   ) {
-    return NextResponse.redirect(new URL("/home", request.url));
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   if (
-    !token &&
-    (url.pathname.startsWith("/home") || url.pathname.startsWith("/blog"))
+    session &&
+    (request.nextUrl.pathname === "/sign-in" ||
+      request.nextUrl.pathname === "/sign-up")
   ) {
-    return NextResponse.json(new URL("/sign-in", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
