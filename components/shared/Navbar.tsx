@@ -1,8 +1,5 @@
-"use client";
-
 import { navLinks } from "@/lib/constants";
 import { Star } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
@@ -13,9 +10,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { auth } from "@/auth";
 
-const Navbar = () => {
-  const { data: session } = useSession();
+const Navbar = async () => {
+  const session = await auth();
 
   return (
     <nav className="border sticky">
@@ -25,13 +23,13 @@ const Navbar = () => {
           <Star />
         </Link>
 
-        {/* <div className="flex gap-4">
+        <div className="flex gap-4">
           {navLinks.map((link) => (
             <Link href={link.link} key={link.id}>
               {link.name}
             </Link>
           ))}
-        </div> */}
+        </div>
 
         <div className="flex items-center gap-4">
           <ModeToggle />

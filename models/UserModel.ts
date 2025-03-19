@@ -1,12 +1,11 @@
-import { model, Model, models, Schema } from "mongoose";
-import { IResume, ResumeSchema } from "./ResumeModel";
+import mongoose, { model, Model, models, Schema } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   image: string;
-  resumes: IResume[];
+  resumes: Schema.Types.ObjectId[];
 }
 
 export const UserSchema: Schema<IUser> = new Schema(
@@ -15,7 +14,12 @@ export const UserSchema: Schema<IUser> = new Schema(
     email: { type: String, unique: true, required: true },
     password: { type: String },
     image: { type: String },
-    resumes: [ResumeSchema],
+    resumes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume",
+      },
+    ],
   },
   { timestamps: true }
 );

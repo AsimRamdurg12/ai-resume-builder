@@ -50,23 +50,17 @@ export const uploadResume = async (data: FormData) => {
 
     const jobDescription = data.get("jobdescription") as string;
 
-    let prompt = `Analyze this resume's ATS friendliness based on the following criteria:
+    const prompt = `Analyze this resume's ATS friendliness based on the following criteria:
       - Formatting (avoid tables, graphics, and columns)
       - Keyword relevance for job applications
       - Readability for ATS
       - Section structure (Education, Experience, Skills, etc.)
 
+      Compare this resume with the following job description: ${jobDescription}
+
       Analyze the following resume and provide only the ATS score as a number (0-100).Do NOT include any text, just the number.
       Resume Text:
       ${fileText}`;
-
-    if (jobDescription) {
-      prompt += ` Compare this resume with the following job description and suggest optimizations:
-
-        Job Description:
-        ${jobDescription}
-      `;
-    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo",
@@ -129,8 +123,64 @@ export const getResumesById = async (id: string) => {
       toast("Please login");
     }
 
-    const user = await UserModel.findOne({ email: session?.user?.email });
+    const resume = await ResumeModel.findById(id);
+
+    if (!resume) {
+      return Response.json({
+        message: "Resume not found",
+      });
+    }
+
+    return JSON.parse(JSON.stringify(resume));
   } catch (error) {
     throw new Error(`Error in getResumesbyId: ${JSON.stringify(error)}`);
+  }
+};
+
+export const advancedAnalysis = async (id: string, data: FormData) => {
+  await dbConnect();
+
+  const session = await auth();
+
+  try {
+    if (!session || !session.user) {
+      throw new Error("Unauthorized. Please login");
+    }
+
+    const resume = await ResumeModel.findById(id);
+
+    const jobDescription = data.get("jobdescription") as string;
+
+    const prompt = `Analyze this resume's ATS friendliness based on the following criteria:
+      - Formatting (avoid tables, graphics, and columns)
+      - Keyword relevance for job applications
+      - Readability for ATS
+      - Section structure (Education, Experience, Skills, Profile Summary, Projects, Certifications etc.)
+
+      Compare this resume with the following job description: ${jobDescription}
+
+      Analyze the following resume and provide a detailed summary for each section and each bullet point in the resume. Paraphrase the necessary points in the the resume text and point it out and disply it in bold letters
+      Resume Text:
+      ${resume?.parsedText}
+      `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      messages: [
+        { role: "system", content: "You are an ATS scoring assistant." },
+        { role: "user", content: prompt },
+      ],
+    });
+
+    const analysis =
+      response.choices[0].message.content || "Cannot analyze at the moment.";
+
+    if (resume?.suggestions) resume.suggestions = analysis;
+
+    await resume?.save();
+
+    return JSON.parse(JSON.stringify(resume));
+  } catch (error) {
+    throw new Error(`Error in advancedAnalysis: ${JSON.stringify(error)}`);
   }
 };

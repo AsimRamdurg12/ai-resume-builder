@@ -6,7 +6,7 @@ export interface IResume extends Document {
   filename: string;
   parsedText: string;
   atsScore: number;
-  suggestions: string[];
+  suggestions: string;
   extractedSkills: string[];
 }
 
@@ -17,7 +17,7 @@ export const ResumeSchema: Schema<IResume> = new Schema(
     filename: { type: String },
     parsedText: { type: String },
     atsScore: { type: Number },
-    suggestions: [String],
+    suggestions: { type: String },
     extractedSkills: [String],
   },
   {
