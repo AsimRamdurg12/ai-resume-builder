@@ -60,7 +60,7 @@ const Accordion = ({ question, answer }: AccordionProps) => {
     <div className="py-2 bg-gray-50 border my-2 rounded-lg" ref={openRef}>
       <Button
         onClick={() => setAccordionOpen(!accordionOpen)}
-        className="flex shadow-none justify-between w-full bg-gray-50 text-black"
+        className="flex shadow-none justify-between w-full bg-gray-50 hover:bg-gray-50 text-black"
       >
         <span className="font-semibold sm:text-base text-wrap text-left">
           {question}

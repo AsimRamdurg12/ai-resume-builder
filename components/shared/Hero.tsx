@@ -26,6 +26,7 @@ const Hero = () => {
           <Image
             src={resume}
             alt="resume"
+            loading="lazy"
             className="w-full rounded-lg my-10 lg:my-0"
           />
         </article>

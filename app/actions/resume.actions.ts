@@ -81,6 +81,8 @@ export const uploadResume = async (data: FormData) => {
 
     const fileUrl = (await resume).secure_url;
 
+    console.log((await resume).original_filename);
+
     const uploadResume = await ResumeModel.create({
       userId: user?.email,
       fileUrl: fileUrl,
@@ -125,11 +127,23 @@ export const getResumesById = async (id: string) => {
 
     const resume = await ResumeModel.findById(id);
 
+    if (resume?.userId !== session?.user?.email) {
+      return Response.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 403, statusText: "Unauthorized" }
+      );
+    }
+
     if (!resume) {
       return Response.json({
         message: "Resume not found",
       });
     }
+
+    console.log(JSON.parse(JSON.stringify(resume)));
 
     return JSON.parse(JSON.stringify(resume));
   } catch (error) {
@@ -137,7 +151,7 @@ export const getResumesById = async (id: string) => {
   }
 };
 
-export const advancedAnalysis = async (id: string, data: FormData) => {
+export const advancedAnalysis = async (id: string) => {
   await dbConnect();
 
   const session = await auth();
@@ -149,17 +163,13 @@ export const advancedAnalysis = async (id: string, data: FormData) => {
 
     const resume = await ResumeModel.findById(id);
 
-    const jobDescription = data.get("jobdescription") as string;
-
     const prompt = `Analyze this resume's ATS friendliness based on the following criteria:
       - Formatting (avoid tables, graphics, and columns)
       - Keyword relevance for job applications
       - Readability for ATS
       - Section structure (Education, Experience, Skills, Profile Summary, Projects, Certifications etc.)
 
-      Compare this resume with the following job description: ${jobDescription}
-
-      Analyze the following resume and provide a detailed summary for each section and each bullet point in the resume. Paraphrase the necessary points in the the resume text and point it out and disply it in bold letters
+      Analyze the following resume and provide a detailed summary for each section and each bullet point in the resume. Paraphrase the necessary points in the the resume text and point it out and display it in bold letters
       Resume Text:
       ${resume?.parsedText}
       `;
